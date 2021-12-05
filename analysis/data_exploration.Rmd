@@ -1,0 +1,62 @@
+---
+title: "Untitled"
+author: "Benny"
+date: "11/29/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+library(tidyverse)
+library(childesr)
+
+project_root <- here::here()
+
+
+```
+
+
+```{r}
+d_utterances <- 
+  get_utterances(collection = "Eng-NA")
+
+```
+
+```{r}
+d_utterances_arranged <- 
+  d_utterances %>% 
+  arrange(transcript_id, utterance_order) %>% 
+  filter(speaker_role %in% c(
+    "Mother",
+    "Grandmother",
+    "Father",
+    "Adult"
+  ))
+
+groups <- 
+  d_utterances_arranged %>% 
+  group_by(transcript_id) %>%
+  group_split
+
+collapse_words <- function(transcript) {
+  return(transcript %>% pull(stem) %>% paste(collapse = " "))
+} 
+
+
+
+#make a list of all of the transcripts
+transcript_list <- 
+  groups %>% 
+  map(collapse_words)
+
+write_file(
+  transcript_list %>% paste(collapse = "\n\n"), 
+  file = fs::path(project_root, "all_transcripts.txt")
+)
+
+
+
+
+```
+
