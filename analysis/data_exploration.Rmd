@@ -10,6 +10,7 @@ knitr::opts_chunk$set(echo = TRUE)
 
 library(tidyverse)
 library(childesr)
+library(text2vec)
 
 project_root <- here::here()
 
@@ -55,6 +56,33 @@ write_file(
   file = fs::path(project_root, "all_transcripts.txt")
 )
 
+
+
+
+```
+
+
+```{r}
+
+txt <- read_lines(fs::path(project_root, "all_transcripts.txt"))
+
+it <- itoken(txt, progressbar = FALSE)
+
+vocab <- 
+  text2vec::create_vocabulary(it) %>% 
+  prune_vocabulary(term_count_min = 5)
+
+vectorizer <- vocab_vectorizer(vocab)
+
+childes_tcm <- create_tcm(it, vectorizer, skip_grams_window = 10)
+
+glove <- GlobalVectors$new(rank = 50, x_max = 10)
+
+word_vectors <- glove$fit_transform(childes_tcm, n_iter = 20)
+
+word_vectors_context <- glove$components
+
+full_vectors <- word_vectors + t(word_vectors_context)
 
 
 
