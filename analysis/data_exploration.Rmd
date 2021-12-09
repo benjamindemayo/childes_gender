@@ -11,6 +11,7 @@ knitr::opts_chunk$set(echo = TRUE)
 library(tidyverse)
 library(childesr)
 library(text2vec)
+library(word2vec)
 
 project_root <- here::here()
 
@@ -64,7 +65,7 @@ write_file(
 
 ```{r}
 
-txt <- read_lines(fs::path(project_root, "all_transcripts.txt"))
+txt <- read_lines(fs::path(project_root, "all_transcripts.txt")) %>% tolower()
 
 it <- itoken(txt, progressbar = FALSE)
 
@@ -74,11 +75,11 @@ vocab <-
 
 vectorizer <- vocab_vectorizer(vocab)
 
-childes_tcm <- create_tcm(it, vectorizer, skip_grams_window = 10)
+childes_tcm <- create_tcm(it, vectorizer, skip_grams_window = 5)
 
 glove <- GlobalVectors$new(rank = 50, x_max = 10)
 
-word_vectors <- glove$fit_transform(childes_tcm, n_iter = 20)
+word_vectors <- glove$fit_transform(childes_tcm, n_iter = 20, convergence_tol = 0.001)
 
 word_vectors_context <- glove$components
 
@@ -87,4 +88,181 @@ full_vectors <- word_vectors + t(word_vectors_context)
 
 
 ```
+
+```{r}
+girl <- full_vectors["girl", , drop = F]
+
+glove_girl_sims <- 
+  text2vec::sim2(
+    x = full_vectors, 
+    y = girl, 
+    method = "cosine", 
+    norm = "l2"
+  ) %>% 
+  as_tibble(rownames = NA) %>% 
+  rename(similarity_to_girl = girl) %>% 
+  arrange(-similarity_to_girl) %>% 
+  rownames_to_column("word")
+
+boy <- full_vectors["boy", , drop = F]
+
+glove_boy_sims <- 
+  text2vec::sim2(
+    x = full_vectors, 
+    y = boy, 
+    method = "cosine", 
+    norm = "l2"
+  ) %>% 
+  as_tibble(rownames = NA) %>% 
+  rename(similarity_to_boy = boy) %>% 
+  arrange(-similarity_to_boy) %>% 
+  rownames_to_column("word")
+
+
+
+
+```
+
+#Word2Vec
+
+```{r}
+
+w2v <- word2vec(txt, type = "cbow", iter = 20)
+
+w2v <- as.matrix(w2v)
+
+w2v_girl_sims <- 
+  w2v['girl',] %>% 
+  word2vec_similarity(
+    y = w2v,
+    type = "cosine"
+  ) %>% 
+  t() %>% 
+  as_tibble(rownames = NA) %>% 
+  rename(similarity_to_girl = V1) %>% 
+  arrange(-similarity_to_girl) %>% 
+  rownames_to_column("word")
+
+
+w2v_boy_sims <- 
+  w2v['boy',] %>% 
+  word2vec_similarity(
+    y = w2v,
+    type = "cosine"
+  ) %>% 
+  t() %>% 
+  as_tibble(rownames = NA) %>% 
+  rename(similarity_to_boy = V1) %>% 
+  arrange(-similarity_to_boy) %>% 
+  rownames_to_column("word")
+
+
+
+```
+
+
+```{r}
+full_similarities_glove <- 
+  glove_boy_sims %>% 
+  left_join(
+    glove_girl_sims,
+    by = "word"
+  ) %>% 
+  pivot_longer(
+    starts_with("sim"),
+    names_to = "gender",
+    values_to = "sim_score_glove"
+  )
+
+full_similarities_w2v <- 
+  w2v_boy_sims %>% 
+  left_join(
+    w2v_girl_sims,
+    by = "word"
+  ) %>% 
+  pivot_longer(
+    starts_with("sim"),
+    names_to = "gender",
+    values_to = "sim_score_w2v"
+  )
+
+full_sims_both_models <- 
+  full_similarities_glove %>% 
+  left_join(
+    full_similarities_w2v,
+    by = c("word", "gender")
+  )
+
+full_sims_both_models %>% 
+  #filter(sim_score_glove < 0.5) %>% 
+  ggplot(aes(
+    x = sim_score_glove,
+    y = sim_score_w2v
+  )) +
+  geom_hex() +
+  facet_wrap(~gender) +
+  scale_fill_viridis() +
+  geom_smooth(method = "loess", color = "red")
+ 
+  
+```
+
+```{r}
+
+girl_words <- 
+  c(
+    "woman",
+    "girl",
+    "sister",
+    "she",
+    "her",
+    "daughter"
+  )
+
+boy_words <- 
+  c(
+    "man",
+    "boy",
+    "brother",
+    "he",
+    "him",
+    "son"
+  )
+  
+
+```
+
+
+
+```{r}
+
+glove_girl_set <- 
+  full_vectors[rownames(full_vectors) %in% girl_words, ,drop = F]
+
+glove_girl_set_sims <- 
+  text2vec::sim2(
+    x = full_vectors, 
+    y = glove_girl_set, 
+    method = "cosine", 
+    norm = "l2"
+  ) %>% 
+  as_tibble(rownames = NA) %>%
+  rownames_to_column("word")
+
+glove_boy_set <- 
+  full_vectors[rownames(full_vectors) %in% boy_words, ,drop = F]
+
+glove_boy_set_sims <- 
+   text2vec::sim2(
+    x = full_vectors, 
+    y = glove_boy_set, 
+    method = "cosine", 
+    norm = "l2"
+  ) %>% 
+  as_tibble(rownames = NA) %>%
+  rownames_to_column("word")
+
+```
+
+
 
