@@ -12,6 +12,7 @@ library(tidyverse)
 library(childesr)
 library(text2vec)
 library(word2vec)
+library(viridis)
 
 project_root <- here::here()
 
@@ -131,6 +132,10 @@ w2v <- word2vec(txt, type = "cbow", iter = 20)
 
 w2v <- as.matrix(w2v)
 
+w2v_tibble <- as_tibble(w2v, rownames = NA)
+
+
+
 w2v_girl_sims <- 
   w2v['girl',] %>% 
   word2vec_similarity(
@@ -195,6 +200,11 @@ full_sims_both_models <-
 
 full_sims_both_models %>% 
   #filter(sim_score_glove < 0.5) %>% 
+  mutate(gender = fct_recode(
+    gender,
+    `Similarity to 'boy'` = "similarity_to_boy",
+    `Similarity to 'girl'` = "similarity_to_girl"
+  )) %>% 
   ggplot(aes(
     x = sim_score_glove,
     y = sim_score_w2v
@@ -202,7 +212,13 @@ full_sims_both_models %>%
   geom_hex() +
   facet_wrap(~gender) +
   scale_fill_viridis() +
-  geom_smooth(method = "loess", color = "red")
+  geom_smooth(method = "loess", color = "red") +
+  labs(
+    x = "Cosine distance (GloVe)",
+    y = "Cosine distance (Word2Vec)",
+    fill = "Number of words"
+  ) +
+  theme_minimal()
  
   
 ```
@@ -247,7 +263,10 @@ glove_girl_set_sims <-
     norm = "l2"
   ) %>% 
   as_tibble(rownames = NA) %>%
-  rownames_to_column("word")
+  rownames_to_column("word") %>% 
+  rowwise() %>% 
+  mutate(avg = mean(c(daughter, woman, sister, girl, her, she))) %>% 
+  arrange(-avg)
 
 glove_boy_set <- 
   full_vectors[rownames(full_vectors) %in% boy_words, ,drop = F]
@@ -260,9 +279,176 @@ glove_boy_set_sims <-
     norm = "l2"
   ) %>% 
   as_tibble(rownames = NA) %>%
-  rownames_to_column("word")
+  rownames_to_column("word") %>% 
+  rowwise() %>% 
+  mutate(avg = mean(c(son, man, brother, boy, him, he))) %>% 
+  arrange(-avg)
+
 
 ```
 
+
+```{r}
+
+w2v_girl_set_sims <- 
+  w2v[girl_words,] %>% 
+  word2vec_similarity(
+    y = w2v,
+    type = "cosine"
+  ) %>% 
+  t() %>% 
+  as_tibble(rownames = NA) %>% 
+  rownames_to_column("word") %>% 
+  rowwise() %>% 
+  mutate(avg = mean(c(woman, girl, sister, she, her, daughter))) %>% 
+  arrange(-avg)
+
+w2v_boy_set_sims <- 
+  w2v[boy_words,] %>% 
+  word2vec_similarity(
+    y = w2v,
+    type = "cosine"
+  ) %>% 
+  t() %>% 
+  as_tibble(rownames = NA) %>% 
+  rownames_to_column("word") %>% 
+  rowwise() %>% 
+  mutate(avg = mean(c(man, boy, brother, he, him, son))) %>% 
+  arrange(-avg)
+
+
+```
+
+
+```{r}
+set_similarities_glove <- 
+  glove_boy_set_sims %>% 
+  select(word, avg_boy = avg) %>% 
+  left_join(
+    glove_girl_set_sims %>% select(word, avg_girl = avg),
+    by = "word"
+  ) %>% 
+  pivot_longer(
+    starts_with("avg"),
+    names_to = "gender",
+    values_to = "sim_score_glove"
+  )
+
+set_similarities_w2v <- 
+  w2v_boy_set_sims %>% 
+  select(word, avg_boy = avg) %>% 
+  left_join(
+    w2v_girl_set_sims %>% select(word, avg_girl = avg),
+    by = "word"
+  ) %>% 
+  pivot_longer(
+    starts_with("avg"),
+    names_to = "gender",
+    values_to = "sim_score_w2v"
+  )
+
+set_sims_both_models <- 
+  set_similarities_glove %>% 
+  left_join(
+    set_similarities_w2v,
+    by = c("word", "gender")
+  )
+
+set_sims_both_models %>% 
+  #filter(sim_score_glove < 0.5) %>% 
+  mutate(gender = fct_recode(
+    gender,
+    `Similarity to 'boy' words` = "avg_boy",
+    `Similarity to 'girl' words` = "avg_girl"
+  )) %>% 
+  ggplot(aes(
+    x = sim_score_glove,
+    y = sim_score_w2v
+  )) +
+  geom_hex(bins = c(30, 60)) +
+  facet_wrap(~gender) +
+  scale_fill_viridis() +
+  geom_smooth(method = "loess", color = "red") +
+  labs(
+    x = "Cosine distance (GloVe)",
+    y = "Cosine distance (Word2Vec)",
+    fill = "Number of words"
+  ) +
+  ggthemes::theme_few()
+  
+```
+
+# Similarity to human judgements
+
+```{r}
+
+human_judgements <- 
+  read_csv(
+    file = fs::path(project_root, "human_ratings", "gender_ratings_mean.csv")
+  )
+
+differences_glove <- 
+  set_similarities_glove %>% 
+  pivot_wider(
+    id_cols = word, 
+    names_from = gender, 
+    values_from = sim_score_glove
+  ) %>% 
+  mutate(difference_glove = avg_girl - avg_boy) %>% 
+  select(word, difference_glove)
+
+differences_w2v <- 
+  set_similarities_w2v %>% 
+  pivot_wider(
+    id_cols = word, 
+    names_from = gender, 
+    values_from = sim_score_w2v
+  ) %>% 
+  mutate(difference_w2v = avg_girl - avg_boy) %>% 
+  select(word, difference_w2v)
+
+both_model_differences <- 
+  differences_glove %>% 
+  left_join(differences_w2v, by = "word")
+
+human_rating_diffs <- 
+  both_model_differences %>% 
+  pivot_longer(
+    cols = starts_with("difference"),
+    names_to = "model"
+  ) %>% 
+  inner_join(
+    human_judgements %>% select(word, mean),
+    by = "word"
+  )
+
+human_rating_diffs %>% 
+  mutate(model = fct_recode(
+    model,
+    `GloVe` = "difference_glove",
+    `Word2Vec` = "difference_w2v"
+  )) %>% 
+  group_by(model) %>% 
+  mutate(value = (value - mean(value, na.rm = TRUE))/sd(value, na.rm = TRUE)) %>% 
+  ggplot(aes(mean, value)) +
+  facet_wrap(~model) +
+  geom_point(alpha = 0.2) +
+  geom_smooth(method = "lm") +
+  labs(
+    x = "Human ratings (1 = most masculine, 5 = most feminine)",
+    y = "Word embedding difference score (z-scored)\n(Higher = more girl-like)"
+  ) +
+  ggthemes::theme_few()
+  
+  
+
+```
+
+
+```{r}
+
+
+
+```
 
 
