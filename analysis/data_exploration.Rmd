@@ -63,6 +63,72 @@ write_file(
 
 ```
 
+#Generating different transcripts for boys and girls.
+```{r}
+
+d_utterances_to_girls <- 
+  d_utterances_arranged %>% 
+  filter(target_child_sex == "female")
+
+groups_girls <- 
+  d_utterances_to_girls %>% 
+  group_by(transcript_id) %>% 
+  group_split
+
+transcript_list_girls <- 
+  groups_girls %>% 
+  map(collapse_words)
+
+write_file(
+  transcript_list_girls %>% paste(collapse = "\n\n"),
+  file = fs::path(project_root, "girl_transcripts.txt")
+)
+
+d_utterances_to_boys <- 
+  d_utterances_arranged %>% 
+  filter(target_child_sex == "male")
+
+groups_boys <- 
+  d_utterances_to_boys %>% 
+  group_by(transcript_id) %>% 
+  group_split
+
+transcript_list_boys <- 
+  groups_boys %>%
+  map(collapse_words)
+
+write_file(
+  transcript_list_boys %>% paste(collapse = "\n\n"),
+  file = fs::path(project_root, "boy_transcripts.txt")
+)
+
+```
+
+```{r}
+
+girl_words <- 
+  c(
+    "woman",
+    "girl",
+    "sister",
+    "she",
+    "her",
+    "daughter"
+  )
+
+boy_words <- 
+  c(
+    "man",
+    "boy",
+    "brother",
+    "he",
+    "him",
+    "son"
+  )
+  
+
+```
+
 
 ```{r}
 
@@ -165,6 +231,150 @@ w2v_boy_sims <-
 
 ```
 
+## Boy and girl specific word2vecs
+```{r}
+#word2vec on speech to boys
+boy_txt <- read_lines(fs::path(project_root, "boy_transcripts.txt")) %>% tolower()
+
+boy_w2v <- word2vec(boy_txt, type = "cbow", iter = 20)
+
+boy_w2v <- as.matrix(boy_w2v)
+
+boy_w2v_tibble <- as_tibble(boy_w2v, rownames = NA)
+
+#word2vec on speech to girls
+girl_txt <- read_lines(fs::path(project_root, "girl_transcripts.txt")) %>% tolower()
+
+girl_w2v <- word2vec(girl_txt, type = "cbow", iter = 20)
+
+girl_w2v <- as.matrix(girl_w2v)
+
+girl_w2v_tibble <- as_tibble(girl_w2v, rownames = NA)
+
+
+
+```
+
+```{r}
+#get similarity to boy and girl clusters
+
+#In speech to girls, what are the top similar words to the girl cluster?
+girl_w2v_girl_set_sims <- 
+  girl_w2v[girl_words,] %>% 
+  word2vec_similarity(
+    y = girl_w2v,
+    type = "cosine"
+  ) %>% 
+  t() %>% 
+  as_tibble(rownames = NA) %>% 
+  rownames_to_column("word") %>% 
+  rowwise() %>% 
+  mutate(avg = mean(c(woman, girl, sister, she, her, daughter))) %>% 
+  arrange(-avg) %>% 
+  rowid_to_column() %>% 
+  rename(to_girls = avg)
+
+#In speech to girls, what are the top similar words to the boy cluster?
+girl_w2v_boy_set_sims <- 
+  girl_w2v[boy_words,] %>% 
+  word2vec_similarity(
+    y = girl_w2v,
+    type = "cosine"
+  ) %>% 
+  t() %>% 
+  as_tibble(rownames = NA) %>% 
+  rownames_to_column("word") %>% 
+  rowwise() %>% 
+  mutate(avg = mean(c(man, boy, brother, he, him, son))) %>% 
+  arrange(-avg) %>% 
+  rowid_to_column() %>% 
+  rename(to_girls = avg)
+
+#In speech to boys, what are the top similar words to the girl cluster?
+boy_w2v_girl_set_sims <- 
+  boy_w2v[girl_words,] %>% 
+  word2vec_similarity(
+    y = boy_w2v,
+    type = "cosine"
+  ) %>% 
+  t() %>% 
+  as_tibble(rownames = NA) %>% 
+  rownames_to_column("word") %>% 
+  rowwise() %>% 
+  mutate(avg = mean(c(woman, girl, sister, she, her, daughter))) %>% 
+  arrange(-avg) %>% 
+  rowid_to_column() %>% 
+  rename(to_boys = avg)
+
+#In speech to boys, what are the top similar words to the boy cluster?
+boy_w2v_boy_set_sims <- 
+  boy_w2v[boy_words,] %>% 
+  word2vec_similarity(
+    y = boy_w2v,
+    type = "cosine"
+  ) %>% 
+  t() %>% 
+  as_tibble(rownames = NA) %>% 
+  rownames_to_column("word") %>% 
+  rowwise() %>% 
+  mutate(avg = mean(c(man, boy, brother, he, him, son))) %>% 
+  arrange(-avg) %>% 
+  rowid_to_column() %>% 
+  rename(to_boys = avg)
+
+#condensed version of similarity to girl words in girl-directed corpus
+to_girl_girl_sims <- 
+  girl_w2v_girl_set_sims %>% 
+  select(word, to_girl_rank = rowid)
+
+#condensed version of similarity to boy words in girl-directed corpus
+to_girl_boy_sims <- 
+  girl_w2v_boy_set_sims %>% 
+  select(word, to_girl_rank = rowid)
+
+#condensed version of similarity to girl words in boy-directed corpus
+to_boy_girl_sims <- 
+  boy_w2v_girl_set_sims %>% 
+  select(word, to_boy_rank = rowid)
+
+#condensed version of similarity to boy words in boy-directed corpus 
+to_boy_boy_sims <- 
+  boy_w2v_boy_set_sims %>% 
+  select(word, to_boy_rank = rowid)
+
+#frequency of words in girl-directed speech
+girl_freqs <- tm::termFreq(girl_txt)
+
+girl_freqs_tibble <- 
+  as_tibble(girl_freqs, rownames = NA) %>% 
+  rownames_to_column() %>% 
+  arrange(-value)
+
+difference_between_girl_sets <- 
+  to_girl_girl_sims %>% 
+  inner_join(to_boy_girl_sims, by = "word") %>% 
+  mutate(diff = to_girl_rank - to_boy_rank) %>% 
+  left_join(girl_freqs_tibble, by = c("word" = "rowname"))
+
+girl_set_common_and_girly <- 
+  difference_between_girl_sets %>% 
+  arrange(to_girl_rank) %>% 
+  mutate(abs_diff = abs(diff)) %>% 
+  filter(to_girl_rank < 100) %>% 
+  arrange(diff)
+
+girl_set_common_and_girly %>% 
+  filter(abs_diff < 1200) %>% 
+  ggplot(aes(diff, value)) +
+  geom_point() +
+  coord_cartesian(xlim = c(-1250,100 ))
+
+
+
+
+```
+
+
 
 ```{r}
 full_similarities_glove <- 
@@ -223,30 +433,6 @@ full_sims_both_models %>%
   
 ```
 
-```{r}
-
-girl_words <- 
-  c(
-    "woman",
-    "girl",
-    "sister",
-    "she",
-    "her",
-    "daughter"
-  )
-
-boy_words <- 
-  c(
-    "man",
-    "boy",
-    "brother",
-    "he",
-    "him",
-    "son"
-  )
-  
-
-```
 
 
 
@@ -446,6 +632,110 @@ human_rating_diffs %>%
 
 
 ```{r}
+
+#just looking at girl-directed speech, how do the embeddings correlate with human ratings
+human_diffs_girl_directed_speech <- 
+  girl_w2v_girl_set_sims %>% 
+  select(word, sim_to_girl_words = to_girls) %>% 
+  left_join(
+    girl_w2v_boy_set_sims %>% select(word, sim_to_boy_words = to_girls),
+    by = "word"
+  ) %>% 
+  mutate(diff = sim_to_girl_words - sim_to_boy_words) %>% 
+  inner_join(
+    human_judgements %>% select(word, rating = mean),
+    by = "word"
+  ) %>% 
+  select(word, diff, rating) %>% 
+  mutate(target = "girl-directed")
+
+human_diffs_boy_directed_speech <- 
+  boy_w2v_girl_set_sims %>% 
+  select(word, sim_to_girl_words = to_boys) %>% 
+  left_join(
+    boy_w2v_boy_set_sims %>% select(word, sim_to_boy_words = to_boys),
+    by = "word"
+  ) %>% 
+  mutate(diff = sim_to_girl_words - sim_to_boy_words) %>% 
+  inner_join(
+    human_judgements %>% select(word, rating = mean),
+    by = "word"
+  ) %>% 
+  select(word, diff, rating) %>% 
+  mutate(target = "boy-directed")
+
+full_human_diffs <- 
+  bind_rows(
+    human_diffs_boy_directed_speech, 
+    human_diffs_girl_directed_speech
+  ) 
+
+full_human_diffs %>% 
+  ggplot(aes(rating, diff)) +
+  facet_wrap(~target) +
+  geom_point(alpha = 0.1) +
+  geom_smooth(method = "lm", color = "red") +
+  viridis::scale_fill_viridis() +
+  coord_cartesian(ylim = c(-.3, .3)) +
+  labs(
+    x = "Human ratings (1 = most masculine, 5 = most feminine)",
+    y = "Word embedding difference score (z-scored)\n(Higher = more girl-like)"
+  ) +
+  ggthemes::theme_few()
+
+
+
+
+
+```
+
+#IAT stuff
+
+```{r}
+
+
+X <- c("woman", "girl", "sister", "she", "her", "daughter")
+
+Y <- c("man", "boy", "brother", "he", "him", "son")
+
+A <- c("family", "parent", "children", "home", "cousin", "wedding")
+
+B <- c("job", "work", "money", "office", "business", "desk")
+
+  
+calculate_weat <- function(mat, X, Y, A, B) {
+  
+  x_a <- vector("list")
+  
+  y_a <- vector("list")
+  
+  for (x in X) {
+    this_x_diffs <- vector("list")
+    for (a in A) {
+      this_sim = word2vec_similarity(mat[x, ], mat[a, ], type = "cosine")
+      this_x_diffs <- append(this_x_diffs, this_sim)
+    }
+    this_avg_sim <- mean(unlist(this_x_diffs))
+    x_a <- append(x_a, this_avg_sim)
+  }
+  
+  for (y in Y) {
+    this_x_diffs <- vector("list")
+    for (a in A) {
+      this_sim = word2vec_similarity(mat[y, ], mat[a, ], type = "cosine")
+      this_y_diffs <- append(this_x_diffs, this_sim)
+    }
+    this_avg_sim <- mean(unlist(this_y_diffs))
+    y_a <- append(y_a, this_avg_sim)
+  }
+  
+  numerator <- mean(unlist(x_a)) - mean(unlist(y_a))
+  
+  denom <- sd(unlist(c(x_a, y_a)))
+  
+  return(numerator/denom)
+  
+}
 
 
 
