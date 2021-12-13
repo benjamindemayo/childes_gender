@@ -144,7 +144,7 @@ vectorizer <- vocab_vectorizer(vocab)
 
 childes_tcm <- create_tcm(it, vectorizer, skip_grams_window = 5)
 
-glove <- GlobalVectors$new(rank = 50, x_max = 10)
+glove <- GlobalVectors$new(rank = 300, x_max = 10)
 
 word_vectors <- glove$fit_transform(childes_tcm, n_iter = 20, convergence_tol = 0.001)
 
@@ -194,11 +194,14 @@ glove_boy_sims <-
 
 ```{r}
 
-w2v <- word2vec(txt, type = "cbow", iter = 20)
+#w2v <- word2vec(txt, type = "cbow", dim = 50, iter = 20)
 
-w2v <- as.matrix(w2v)
+w2v_tibble <- read_csv(fs::path(project_root, "full_w2v_300.csv"))
 
-w2v_tibble <- as_tibble(w2v, rownames = NA)
+w2v <- 
+  w2v_tibble %>% 
+  as.matrix(rownames = "rowname")
+
 
 
 

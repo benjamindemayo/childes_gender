@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.23 (TeX Live 2021/W32TeX) (preloaded format=pdflatex 2021.12.11)  11 DEC 2021 16:32
+This is pdfTeX, Version 3.141592653-2.6-1.40.23 (TeX Live 2021/W32TeX) (preloaded format=pdflatex 2021.12.11)  13 DEC 2021 00:20
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -400,35 +400,35 @@ File: l3backend-pdftex.def 2021-10-18 L3 backend support: PDF output (pdfTeX)
 ) (./childes_gender_paper.aux)
 \openout1 = `childes_gender_paper.aux'.
 
-LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 66.
-LaTeX Font Info:    ... okay on input line 66.
-LaTeX Font Info:    Checking defaults for OMS/pzccm/m/n on input line 66.
+LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 67.
+LaTeX Font Info:    ... okay on input line 67.
+LaTeX Font Info:    Checking defaults for OMS/pzccm/m/n on input line 67.
 LaTeX Font Info:    Trying to load font information for OMS+pzccm on input line
- 66.
+ 67.
 
 (c:/Users/bdemayo.PRINCETON/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/psnfss
 /omspzccm.fd
 File: omspzccm.fd 2000/01/03 Fontinst v1.801 font definitions for OMS/pzccm.
 )
-LaTeX Font Info:    ... okay on input line 66.
-LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 66.
-LaTeX Font Info:    ... okay on input line 66.
-LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 66.
-LaTeX Font Info:    ... okay on input line 66.
-LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 66.
-LaTeX Font Info:    ... okay on input line 66.
-LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 66.
-LaTeX Font Info:    ... okay on input line 66.
-LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 66.
-LaTeX Font Info:    ... okay on input line 66.
-LaTeX Font Info:    Checking defaults for PD1/pdf/m/n on input line 66.
-LaTeX Font Info:    ... okay on input line 66.
-LaTeX Font Info:    Checking defaults for PU/pdf/m/n on input line 66.
-LaTeX Font Info:    ... okay on input line 66.
+LaTeX Font Info:    ... okay on input line 67.
+LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 67.
+LaTeX Font Info:    ... okay on input line 67.
+LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 67.
+LaTeX Font Info:    ... okay on input line 67.
+LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 67.
+LaTeX Font Info:    ... okay on input line 67.
+LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 67.
+LaTeX Font Info:    ... okay on input line 67.
+LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 67.
+LaTeX Font Info:    ... okay on input line 67.
+LaTeX Font Info:    Checking defaults for PD1/pdf/m/n on input line 67.
+LaTeX Font Info:    ... okay on input line 67.
+LaTeX Font Info:    Checking defaults for PU/pdf/m/n on input line 67.
+LaTeX Font Info:    ... okay on input line 67.
 Package caption Info: Begin \AtBeginDocument code.
 Package caption Info: hyperref package is loaded.
 Package caption Info: End \AtBeginDocument code.
-Package hyperref Info: Link coloring OFF on input line 66.
+Package hyperref Info: Link coloring OFF on input line 67.
 
 (c:/Users/bdemayo.PRINCETON/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/hyperr
 ef/nameref.sty
@@ -444,9 +444,9 @@ Package: gettitlestring 2019/12/15 v1.6 Cleanup title references (HO)
 )
 \c@section@level=\count287
 )
-LaTeX Info: Redefining \ref on input line 66.
-LaTeX Info: Redefining \pageref on input line 66.
-LaTeX Info: Redefining \nameref on input line 66.
+LaTeX Info: Redefining \ref on input line 67.
+LaTeX Info: Redefining \pageref on input line 67.
+LaTeX Info: Redefining \nameref on input line 67.
 (./childes_gender_paper.out) (./childes_gender_paper.out)
 \@outlinefile=\write4
 \openout4 = `childes_gender_paper.out'.
@@ -472,108 +472,120 @@ LaTeX Info: Redefining \BPBI on input line 129.
 LaTeX Info: Redefining \BHBI on input line 130.
 )
 LaTeX Font Info:    Trying to load font information for OT1+ptmcm on input line
- 69.
+ 70.
 
 (c:/Users/bdemayo.PRINCETON/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/psnfss
 /ot1ptmcm.fd
 File: ot1ptmcm.fd 2000/01/03 Fontinst v1.801 font definitions for OT1/ptmcm.
 )
 LaTeX Font Info:    Trying to load font information for OML+ptmcm on input line
- 69.
+ 70.
 
 (c:/Users/bdemayo.PRINCETON/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/psnfss
 /omlptmcm.fd
 File: omlptmcm.fd 2000/01/03 Fontinst v1.801 font definitions for OML/ptmcm.
 )
 LaTeX Font Info:    Trying to load font information for OMX+psycm on input line
- 69.
+ 70.
 
 (c:/Users/bdemayo.PRINCETON/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/psnfss
 /omxpsycm.fd
 File: omxpsycm.fd 2000/01/03 Fontinst v1.801 font definitions for OMX/psycm.
 )
 LaTeX Font Info:    Font shape `OT1/ptm/bx/n' in size <10> not available
-(Font)              Font shape `OT1/ptm/b/n' tried instead on input line 69.
+(Font)              Font shape `OT1/ptm/b/n' tried instead on input line 70.
 LaTeX Font Info:    Font shape `OT1/ptm/bx/n' in size <7.4> not available
-(Font)              Font shape `OT1/ptm/b/n' tried instead on input line 69.
+(Font)              Font shape `OT1/ptm/b/n' tried instead on input line 70.
 LaTeX Font Info:    Font shape `OT1/ptm/bx/n' in size <6> not available
-(Font)              Font shape `OT1/ptm/b/n' tried instead on input line 69.
-LaTeX Font Info:    Trying to load font information for U+msa on input line 69.
+(Font)              Font shape `OT1/ptm/b/n' tried instead on input line 70.
+LaTeX Font Info:    Trying to load font information for U+msa on input line 70.
 
 
 (c:/Users/bdemayo.PRINCETON/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/amsfon
 ts/umsa.fd
 File: umsa.fd 2013/01/14 v3.01 AMS symbols A
 )
-LaTeX Font Info:    Trying to load font information for U+msb on input line 69.
+LaTeX Font Info:    Trying to load font information for U+msb on input line 70.
 
 
 (c:/Users/bdemayo.PRINCETON/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/amsfon
 ts/umsb.fd
 File: umsb.fd 2013/01/14 v3.01 AMS symbols B
 )
-Underfull \vbox (badness 10000) detected at line 69
+Underfull \vbox (badness 10000) detected at line 70
  []
 
-LaTeX Font Info:    Font shape `OT1/ptm/bx/n' in size <9> not available
-(Font)              Font shape `OT1/ptm/b/n' tried instead on input line 167.
-LaTeX Font Info:    Font shape `OT1/ptm/bx/n' in size <7> not available
-(Font)              Font shape `OT1/ptm/b/n' tried instead on input line 167.
-LaTeX Font Info:    Font shape `OT1/ptm/bx/n' in size <5> not available
-(Font)              Font shape `OT1/ptm/b/n' tried instead on input line 167.
+
+Underfull \hbox (badness 3128) in paragraph at lines 166--178
+\OT1/ptm/m/n/10 Amer-i-can En-glish tran-scripts in the CHILDES cor-pus
+ []
+
+
+Underfull \vbox (badness 10000) has occurred while \output is active []
+
 [1{c:/Users/bdemayo.PRINCETON/AppData/Roaming/TinyTeX/texmf-var/fonts/map/pdfte
 x/updmap/pdftex.map}
 
 
 
 ]
-<figs/2-col-image-1.pdf, id=75, 289.08pt x 144.54pt>
+LaTeX Font Info:    Font shape `OT1/ptm/bx/n' in size <9> not available
+(Font)              Font shape `OT1/ptm/b/n' tried instead on input line 284.
+LaTeX Font Info:    Font shape `OT1/ptm/bx/n' in size <7> not available
+(Font)              Font shape `OT1/ptm/b/n' tried instead on input line 284.
+LaTeX Font Info:    Font shape `OT1/ptm/bx/n' in size <5> not available
+(Font)              Font shape `OT1/ptm/b/n' tried instead on input line 284.
+[2]
+<figs/2-col-image-1.pdf, id=110, 289.08pt x 144.54pt>
 File: figs/2-col-image-1.pdf Graphic file (type pdf)
 <use figs/2-col-image-1.pdf>
-Package pdftex.def Info: figs/2-col-image-1.pdf  used on input line 201.
+Package pdftex.def Info: figs/2-col-image-1.pdf  used on input line 318.
 (pdftex.def)             Requested size: 289.07928pt x 144.53963pt.
 
 LaTeX Warning: `h' float specifier changed to `ht'.
 
-<figs/image-1.pdf, id=76, 144.54pt x 144.54pt>
+<figs/image-1.pdf, id=111, 144.54pt x 144.54pt>
 File: figs/image-1.pdf Graphic file (type pdf)
 <use figs/image-1.pdf>
-Package pdftex.def Info: figs/image-1.pdf  used on input line 219.
+Package pdftex.def Info: figs/image-1.pdf  used on input line 336.
 (pdftex.def)             Requested size: 144.53963pt x 144.53963pt.
-<figs/plot-1.pdf, id=78, 144.54pt x 144.54pt>
+<figs/plot-1.pdf, id=113, 144.54pt x 144.54pt>
 File: figs/plot-1.pdf Graphic file (type pdf)
 <use figs/plot-1.pdf>
-Package pdftex.def Info: figs/plot-1.pdf  used on input line 239.
+Package pdftex.def Info: figs/plot-1.pdf  used on input line 356.
 (pdftex.def)             Requested size: 144.53963pt x 144.53963pt.
 
 Underfull \vbox (badness 10000) has occurred while \output is active []
 
-[2 <./figs/image-1.pdf> <./figs/plot-1.pdf>] [3 <./figs/2-col-image-1.pdf>] (./
-childes_gender_paper.aux)
+[3 <./figs/image-1.pdf> <./figs/plot-1.pdf>] [4
+
+ <./figs/2-col-image-1.pdf>] (./childes_gender_paper.aux)
 Package rerunfilecheck Info: File `childes_gender_paper.out' has not changed.
-(rerunfilecheck)             Checksum: EE89AB87D770FE9326E8F34BB10AF098;1611.
+(rerunfilecheck)             Checksum: 5F4C38C1ABF027D520DDC1EDC5CF7A7B;2388.
  ) 
 Here is how much of TeX's memory you used:
- 11653 strings out of 480313
- 190123 string characters out of 5894771
- 489519 words of memory out of 5000000
- 29324 multiletter control sequences out of 15000+600000
- 439763 words of font info for 99 fonts, out of 8000000 for 9000
+ 11694 strings out of 480313
+ 190927 string characters out of 5894771
+ 489572 words of memory out of 5000000
+ 29336 multiletter control sequences out of 15000+600000
+ 443208 words of font info for 105 fonts, out of 8000000 for 9000
  14 hyphenation exceptions out of 8191
- 60i,11n,63p,279b,346s stack positions out of 5000i,500n,10000p,200000b,80000s
+ 60i,11n,63p,406b,352s stack positions out of 5000i,500n,10000p,200000b,80000s
 {c:/Users/bdemayo.PRINCETON/AppData/Roaming/TinyTeX/texmf-dist/fonts/enc/dvip
 s/base/8r.enc}<c:/Users/bdemayo.PRINCETON/AppData/Roaming/TinyTeX/texmf-dist/fo
 nts/type1/public/amsfonts/cm/cmmi10.pfb><c:/Users/bdemayo.PRINCETON/AppData/Roa
-ming/TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb><c:/Users/bde
-mayo.PRINCETON/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/urw/courier/ucrr8
-a.pfb><c:/Users/bdemayo.PRINCETON/AppData/Roaming/TinyTeX/texmf-dist/fonts/type
-1/urw/times/utmb8a.pfb><c:/Users/bdemayo.PRINCETON/AppData/Roaming/TinyTeX/texm
-f-dist/fonts/type1/urw/times/utmr8a.pfb><c:/Users/bdemayo.PRINCETON/AppData/Roa
-ming/TinyTeX/texmf-dist/fonts/type1/urw/times/utmri8a.pfb>
-Output written on childes_gender_paper.pdf (3 pages, 321180 bytes).
+ming/TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb><c:/Users/bdem
+ayo.PRINCETON/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm
+/cmsy10.pfb><c:/Users/bdemayo.PRINCETON/AppData/Roaming/TinyTeX/texmf-dist/font
+s/type1/urw/courier/ucrr8a.pfb><c:/Users/bdemayo.PRINCETON/AppData/Roaming/Tiny
+TeX/texmf-dist/fonts/type1/urw/times/utmb8a.pfb><c:/Users/bdemayo.PRINCETON/App
+Data/Roaming/TinyTeX/texmf-dist/fonts/type1/urw/times/utmr8a.pfb><c:/Users/bdem
+ayo.PRINCETON/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/urw/times/utmri8a.
+pfb>
+Output written on childes_gender_paper.pdf (4 pages, 347249 bytes).
 PDF statistics:
- 164 PDF objects out of 1000 (max. 8388607)
- 135 compressed objects within 2 object streams
- 40 named destinations out of 1000 (max. 500000)
- 112 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 216 PDF objects out of 1000 (max. 8388607)
+ 184 compressed objects within 2 object streams
+ 64 named destinations out of 1000 (max. 500000)
+ 152 words of extra memory for PDF output out of 10000 (max. 10000000)
 
