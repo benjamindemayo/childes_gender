@@ -701,9 +701,17 @@ X <- c("woman", "girl", "sister", "she", "her", "daughter")
 
 Y <- c("man", "boy", "brother", "he", "him", "son")
 
-A <- c("family", "parent", "children", "home", "cousin", "wedding")
+home <- c("family", "parent", "children", "home", "cousin", "wedding")
 
-B <- c("job", "work", "money", "office", "business", "desk")
+work <- c("job", "work", "money", "office", "business", "desk")
+
+language <- c("book", "read", "write", "story", "letter", "spell")
+
+math <- c("number", "count", "sort", "size", "shape", "different")
+
+good <- c("good", "happy", "gift", "sunshine", "heaven")
+
+bad <- c("bad", "awful", "sick", "trouble", "hurt")
 
   
 calculate_weat <- function(mat, X, Y, A, B) {
@@ -740,6 +748,250 @@ calculate_weat <- function(mat, X, Y, A, B) {
   
 }
 
+overall_home_work <- calculate_weat(w2v, X, Y, home, work)
+
+to_girls_home_work <- calculate_weat(girl_w2v, X, Y, home, work)
+
+to_boys_home_work <- calculate_weat(boy_w2v, X, Y, home, work)
+
+overall_language_math <- calculate_weat(w2v, X, Y, language, math)
+
+to_girls_language_math <- calculate_weat(girl_w2v, X, Y, language, math)
+
+to_boys_language_math <- calculate_weat(boy_w2v, X, Y, language, math)
+
+overall_good_bad <- calculate_weat(w2v, X, Y, good, bad)
+
+to_girls_good_bad <- calculate_weat(girl_w2v, X, Y, good, bad)
+
+to_boys_good_bad <- calculate_weat(boy_w2v, X, Y, good, bad)
+
+
+```
+
+
+```{r}
+
+calculate_null <- function(mat, X, Y, A, B, n = 1000) {
+  effects_vec <- vector("list")
+  for (i in 1:n) {
+    xy <- append(X, Y)
+    shuffled_xy <- sample(xy)
+    new_x <- shuffled_xy[1:6]
+    new_y <- shuffled_xy[7:12]
+    effects_vec <- append(effects_vec, calculate_weat(mat, new_x, new_y, A, B))
+  }
+  return(effects_vec %>% unlist)
+}
+
+overall_home_work_null <- calculate_null(w2v, X, Y, home, work)
+
+to_girls_home_work_null <- calculate_null(girl_w2v, X, Y, home, work)
+
+to_boys_home_work_null <- calculate_null(boy_w2v, X, Y, home, work)
+
+overall_language_math_null <- calculate_null(w2v, X, Y, language, math)
+
+to_girls_language_math_null <- calculate_null(girl_w2v, X, Y, language, math)
+
+to_boys_language_math_null <- calculate_null(boy_w2v, X, Y, language, math)
+
+overall_good_bad_null <- calculate_null(w2v, X, Y, good, bad)
+
+to_girls_good_bad_null <- calculate_null(girl_w2v, X, Y, good, bad)
+
+to_boys_good_bad_null <- calculate_null(boy_w2v, X, Y, good, bad)
+
+
+```
+
+
+```{r}
+
+#Building a tibble for the plot.
+
+weat_plot_tibble <- 
+  tribble(
+    ~stereotype, ~target, ~effect_size, ~sd,
+    "home_work", "overall", overall_home_work, sd(overall_home_work_null),
+    "home_work", "girls", to_girls_home_work, sd(to_girls_home_work_null),
+    "home_work", "boys", to_boys_home_work, sd(to_boys_home_work_null),
+    "good_bad", "overall", overall_good_bad, sd(overall_good_bad_null),
+    "good_bad", "girls", to_girls_good_bad, sd(to_girls_good_bad_null),
+    "good_bad", "boys", to_boys_good_bad, sd(to_boys_good_bad_null),
+    "language_math", "overall", overall_language_math, sd(overall_language_math_null),
+    "language_math", "girls", to_girls_language_math, sd(to_girls_language_math_null),
+    "language_math", "boys", to_boys_language_math, sd(to_boys_language_math_null)
+  ) %>% 
+  mutate(
+    errorbar_lower = effect_size - (1.96 * sd),
+    errorbar_upper = effect_size + (1.96 * sd)
+  )
+
+weat_plot_tibble %>% 
+  mutate(stereotype = fct_recode(
+    stereotype,
+    "Female-Good/\nMale-Bad" = "good_bad",
+    "Female-Home/\nMale-Work" = "home_work",
+    "Female-Language/\nMale-Math" = "language_math"
+  )) %>% 
+  ggplot(aes(x= stereotype, fill = target)) +
+  geom_col(position = "dodge", aes(y = effect_size)) +
+  geom_hline(aes(yintercept = 0), linetype = "dotted") +
+  geom_errorbar(
+    position = position_dodge(0.9),
+    aes(ymin = errorbar_lower, ymax = errorbar_upper), 
+    width = 0.3
+  ) +
+  scale_fill_viridis_d(option = "D") +
+  ggthemes::theme_few() + 
+  labs(y = "Implicit Bias effect size (Cohen's D)", fill = "Corpus") +
+  theme(axis.title.x = element_blank())
+```
+
+
+```{r}
+
+cdi_words <- 
+  c("airplane", "bear", "boat", "car", "ball", "book", "meat", "duck", "game", "hat", "broom", "tray", "necklace", "comb", "towel", "show", "mop", "bed", "sock", "plate", "trash", "beach", "oven", "stair", "flag", "star", "swing", "school", "sky", "party", "friend", "mommy", "person", "carry", "chase", "finish", "fit", "hug", "listen", "like", "pretend", "rip", "shake", "taste", "think", "wish")
+
+cds_cdi_to_feminine <- 
+  w2v[girl_words,] %>% 
+  word2vec_similarity(
+    y = w2v[cdi_words,],
+    type = "cosine"
+  ) %>% 
+  t() %>% 
+  as_tibble(rownames = NA) %>% 
+  rownames_to_column("word") %>% 
+  rowwise() %>% 
+  mutate(avg = mean(c(woman, girl, sister, she, her, daughter))) %>% 
+  arrange(-avg) %>% 
+  rowid_to_column() %>% 
+  rename(to_girls = avg) %>% 
+  select(word, to_girls)
+
+cds_cdi_to_masculine <- 
+  w2v[boy_words,] %>% 
+  word2vec_similarity(
+    y = w2v[cdi_words,],
+    type = "cosine"
+  ) %>% 
+  t() %>% 
+  as_tibble(rownames = NA) %>% 
+  rownames_to_column("word") %>% 
+  rowwise() %>% 
+  mutate(avg = mean(c(man, boy, brother, he, him, son))) %>% 
+  arrange(-avg) %>% 
+  rowid_to_column() %>% 
+  rename(to_boys = avg) %>% 
+  select(word, to_boys)
+
+gds_cdi_to_feminine <- 
+  girl_w2v[girl_words,] %>% 
+  word2vec_similarity(
+    y = girl_w2v[cdi_words,],
+    type = "cosine"
+  ) %>% 
+  t() %>% 
+  as_tibble(rownames = NA) %>% 
+  rownames_to_column("word") %>% 
+  rowwise() %>% 
+  mutate(avg = mean(c(woman, girl, sister, she, her, daughter))) %>% 
+  arrange(-avg) %>% 
+  rowid_to_column() %>% 
+  rename(to_girls = avg) %>% 
+  select(word, to_girls) 
+
+gds_cdi_to_masculine <- 
+  girl_w2v[boy_words,] %>% 
+  word2vec_similarity(
+    y = girl_w2v[cdi_words,],
+    type = "cosine"
+  ) %>% 
+  t() %>% 
+  as_tibble(rownames = NA) %>% 
+  rownames_to_column("word") %>% 
+  rowwise() %>% 
+  mutate(avg = mean(c(man, boy, brother, he, him, son))) %>% 
+  arrange(-avg) %>% 
+  rowid_to_column() %>% 
+  rename(to_boys = avg) %>% 
+  select(word, to_boys)
+
+bds_cdi_to_feminine <- 
+  boy_w2v[girl_words,] %>% 
+  word2vec_similarity(
+    y = boy_w2v[cdi_words,],
+    type = "cosine"
+  ) %>% 
+  t() %>% 
+  as_tibble(rownames = NA) %>% 
+  rownames_to_column("word") %>% 
+  rowwise() %>% 
+  mutate(avg = mean(c(woman, girl, sister, she, her, daughter))) %>% 
+  arrange(-avg) %>% 
+  rowid_to_column() %>% 
+  rename(to_girls = avg) %>% 
+  select(word, to_girls)
+
+bds_cdi_to_masculine <- 
+  boy_w2v[boy_words,] %>% 
+  word2vec_similarity(
+    y = boy_w2v[cdi_words,],
+    type = "cosine"
+  ) %>% 
+  t() %>% 
+  as_tibble(rownames = NA) %>% 
+  rownames_to_column("word") %>% 
+  rowwise() %>% 
+  mutate(avg = mean(c(man, boy, brother, he, him, son))) %>% 
+  arrange(-avg) %>% 
+  rowid_to_column() %>% 
+  rename(to_boys = avg) %>% 
+  select(word, to_boys)
+
+cds_diff <- 
+  cds_cdi_to_feminine %>% 
+  left_join(cds_cdi_to_masculine, by = "word") %>% 
+  mutate(diff = to_girls - to_boys, dataset = "Overall") %>% 
+  arrange(-diff)
+
+gds_diff <- 
+  gds_cdi_to_feminine %>% 
+  left_join(gds_cdi_to_masculine, by = "word") %>% 
+  mutate(diff = to_girls - to_boys, dataset = "Girl-directed speech") %>% 
+  arrange(-diff)
+
+bds_diff <- 
+  bds_cdi_to_feminine %>% 
+  left_join(gds_cdi_to_masculine, by = "word") %>% 
+  mutate(diff = to_girls - to_boys, dataset = "Boy-directed speech") %>% 
+  arrange(-diff)
+
+all_diff <- 
+  bind_rows(cds_diff, gds_diff, bds_diff) %>% 
+  pivot_longer(cols = starts_with("to"), names_to = "anchors", values_to = "cosine_sim_to_anchors")
+
+all_diff$word <- fct_reorder(all_diff$word, all_diff$diff)
+
+all_diff %>% 
+  mutate(
+    word = fct_reorder(word, diff),
+    dataset = fct_relevel(dataset, "Overall")
+  ) %>% 
+  ggplot(aes(diff, fct_inorder(word))) +
+  facet_wrap(~dataset) +
+  geom_point() + 
+  theme_minimal() +
+  labs(
+    x = "(Mean cosine distance from 'girl' anchors) - (Mean cosine distance from 'boy' anchors)"
+  ) +
+  theme(axis.title.y = element_blank())
+
+
+
+  
 
 
 ```
